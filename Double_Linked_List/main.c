@@ -3,7 +3,6 @@
 #include<stdbool.h>
 
 typedef int ElemType;
-
 typedef struct Node{
     ElemType e;
     struct Node *prior,*next;
@@ -12,7 +11,7 @@ typedef struct Node{
 void init_list(LinkList* head){
     *head=(Node*)malloc(sizeof(Node));
     if(!(*head)){
-        printf("内存分配失败\n");
+        printf("分配内存失败\n");
         exit(EXIT_FAILURE);
     }
     (*head)->prior=NULL;
@@ -34,6 +33,7 @@ void clear_list(LinkList head){
         p=p->next;
         free(del);
     }
+    head->next=NULL;
 }
 bool is_empty(LinkList head){
     return head->next==NULL;
@@ -47,73 +47,128 @@ int get_len(LinkList head){
     }
     return count;
 }
-
 int search_elem(LinkList head,ElemType e){
     Node* p=head->next;
-    int count=1;
+    int pos=1;
     while(p){
         if(e==p->e){
-            return count;
+            return pos;
         }
         p=p->next;
-        count++;
+        pos++;
     }
     return -1;
 }
-
 bool get_elem(LinkList head,int pos,ElemType* e){
-    if(pos<1)return false;
     Node* p=head->next;
-    int count=1;
+    int i=1;
     while(p){
-        if(count==pos){
+        if(i==pos){
             *e=p->e;
             return true;
         }
         p=p->next;
+        i++;
     }
     return false;
 }
 void print_list(LinkList head){
     Node* p=head->next;
-    int i=1;
-    printf("\n==========\n");
     if(!p)printf("空表\n");
+    printf("head<->");
     while(p){
-        printf("id:%d elem:%d\n",i,p->e);
+        printf("%d<->",p->e);
         p=p->next;
-        i++;
     }
-    printf("==========\n");
+    printf("NULL");
 }
-
 bool delete_by_value(LinkList head,ElemType e){
     Node* p=head->next;
-    while(p&&e!=p->e)p=p->next;
-    if(!p)return false;
-    p->prior->next=p->next;
-    if(p->next)p->next->prior=p->prior;
-    free(p);
-    return true;
+    bool deleted=false;
+    while(p){
+        if(e==p->e){
+            Node* rec=p->prior;
+            Node* del=p;
+            p->prior->next=p->next;
+            if(p->next)p->next->prior=p->prior;
+            free(del);
+            deleted=true;
+            p=rec;
+        }
+        p=p->next;
+    }
+    return deleted;
 }
 bool insert_elem(LinkList head,int pos,ElemType e){
     Node* prev=head;
     int i=0;
     while(prev&&i<pos-1){
         prev=prev->next;
+        i++;
     }
     if(!prev)return false;
     Node* new_node=(Node*)malloc(sizeof(Node));
+    if(!new_node){
+        printf("内存分配失败\n");
+        return false;
+    }
     new_node->e=e;
     new_node->next=prev->next;
     new_node->prior=prev;
-    if(prev->next!=NULL)prev->next->prior=new_node;
+    if(prev->next)prev->next->prior=new_node;
     prev->next=new_node;
     return true;
 }
 int main(void){
-    LinkList head=NULL;
+    LinkList head;
     init_list(&head);
 
+    // 测试 1：头插三个元素，预期打印 1 2 3
+    insert_elem(head, 1, 3);
+    insert_elem(head, 1, 2);
+    insert_elem(head, 1, 1);
+    print_list(head);
+    printf("\n");
+    // 测试 2：尾插一个（插到 length+1 位置），预期 1 2 3 4
+    insert_elem(head, get_len(head)+1, 4);
+    print_list(head);
+    printf("\n");
+    // 测试 3：删一个值，预期输出变化
+    if(delete_by_value(head, 2))printf("已删掉%d\n",2);
+    print_list(head);
+    printf("\n");
+    // 测试 4：/ 空表操作 / 非法位置(pos=99)……
+    // ——剩下的边界情况你自己补，这正是你昨天学的"边界意识"
+    if(!delete_by_value(head,99))printf("未找到要删除的元素\n");
+    print_list(head);
+    printf("\n");
+    
+    clear_list(head);
+    printf("链表已清空\n");
+
+    insert_elem(head,1,1);
+    insert_elem(head,1,1);
+    insert_elem(head,1,1);
+    insert_elem(head,1,1);
+    print_list(head);
+    printf("\n");
+
+    delete_by_value(head,1);
+    print_list(head);
+    printf("\n");
+
+    insert_elem(head,1,1);
+    insert_elem(head,1,3);
+    insert_elem(head,1,2);
+    insert_elem(head,1,1);
+    print_list(head);
+    printf("\n");
+
+    delete_by_value(head,1);
+    print_list(head);
+    printf("\n");
+    
+    destroy_list(&head);
+    printf("链表已销毁\n");
     return 0;
 }
