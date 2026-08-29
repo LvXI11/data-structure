@@ -55,7 +55,7 @@ bool pop_elem(Stack* S,ElemType* e){
 }
 int main(void){
     Stack S;
-    init_list(&S);
+    init_stack(&S);
     if(is_empty(S))printf("空栈\n");
     else{printf("栈不为空\n");}
     //预期输出base 1 2 3 top
