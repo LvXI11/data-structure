@@ -83,5 +83,6 @@ int main(void){
     Tree* n11=create_node(11);
     n9->rchild=n11;
     preorder(n1);
+    //前序：1 2 4 8 9 11 5 10 3 6 7
     return 0;
 }
