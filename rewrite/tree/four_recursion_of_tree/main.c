@@ -9,6 +9,38 @@ typedef struct Tree{
     struct Tree *lchild,*rchild;
 }Tree;
 
+typedef struct Stack{
+    Tree* node;
+    struct Stack* next;
+}Stack;
+
+void init_stack(Stack** S){
+    *S=(Stack*)malloc(sizeof(Stack));
+    if(!*S)exit(EXIT_FAILURE);
+    (*S)->next=NULL;
+}
+
+bool is_empty(Stack* S){
+    return S->next==NULL;
+}
+
+void push_elem(Stack* S,Tree* T){
+    Stack* new_node=(Stack*)malloc(sizeof(Stack));
+    if(!new_node)return;
+    new_node->node=T;
+    new_node->next=S->next;
+    S->next=new_node;
+}
+
+Tree* pop_elem(Stack* S){
+    if(is_empty(S))return NULL;
+    Stack* del=S->next;
+    Tree* t=del->node;
+    S->next=S->next->next;
+    free(del);
+    return t;
+}
+
 Tree* create_node(ElemType e){
     Tree* new_node=(Tree*)malloc(sizeof(Tree));
     if(!new_node)return NULL;
@@ -22,17 +54,21 @@ int count_node(Tree* T){
     return 1+count_node(T->lchild)+count_node(T->rchild);
 }
 
-int get_tree_height(Tree* T){
+int get_height(Tree* T){
     if(!T)return 0;
-    int lh=get_tree_height(T->lchild);
-    int rh=get_tree_height(T->rchild);
+    int lh=get_height(T->lchild);
+    int rh=get_height(T->rchild);
     return 1+(lh>rh?lh:rh);
 }
 
-int count_leaves(Tree* T){
+int leves_count(Tree* T){
     if(!T)return 0;
     if(T->lchild==NULL&&T->rchild==NULL)return 1;
-    return count_leaves(T->lchild)+count_leaves(T->rchild);
+    return leves_count(T->lchild)+leves_count(T->rchild);
+}
+int count_even(Tree* T){
+    if(!T)return 0;
+    return (T->e%2==0)+count_even(T->lchild)+count_even(T->rchild);
 }
 int main(void){
     Tree* n1=create_node(1);
@@ -56,8 +92,9 @@ int main(void){
     n5->lchild=n10;
     Tree* n11=create_node(11);
     n9->rchild=n11;
-    printf("node count:%d\n",count_node(n1));
-    printf("tree's height:%d\n",get_tree_height(n1));
-    printf("leaves's count:%d\n",count_leaves(n1));
+    printf("nodes count:%d\n",count_node(n1));
+    printf("tree's height:%d\n",get_height(n1));
+    printf("tree's leves:%d\n",leves_count(n1));
+    printf("even count:%d\n",count_even(n1));
     return 0;
 }
