@@ -1,14 +1,14 @@
 #include<stdio.h>
-#include<stdlib.h>
 #define MAXV 100
 #define INF 9999
+
 typedef struct ALGraph{
     char vertex[MAXV][10];
-    int vexnum,arcnum;
+    int arcnum,vexnum;
     int arcs[MAXV][MAXV];
 }ALGraph;
 
-void build_ALGraph(ALGraph* G){
+void build_graph(ALGraph* G){
     for(int i=0;i<MAXV;i++){
         for(int j=0;j<MAXV;j++){
             G->arcs[i][j]=INF;
@@ -17,88 +17,82 @@ void build_ALGraph(ALGraph* G){
     }
     printf("请输入顶点数：");
     scanf("%d",&G->vexnum);
-    printf("请输入边数：");
+    printf("\n请输入边数：");
     scanf("%d",&G->arcnum);
-    for(int i=0;i<G->vexnum;i++) sprintf(G->vertex[i],"v%d",i);
-    printf("请输入各边和权重：\n");
+    for(int i=0;i<G->vexnum;i++){
+        sprintf(G->vertex[i],"v%d",i);
+    }
+    printf("\n请输入边和权:\n");
     for(int j=0;j<G->arcnum;j++){
         int a,b,weight;
-        scanf("%d%d %d",&a,&b,&weight);
+        scanf("%d %d %d",&a,&b,&weight);
         G->arcs[a][b]=weight;
         G->arcs[b][a]=weight;
     }
 }
 
 void print_graph(ALGraph* G){
+    printf("\n邻接矩阵：\n");
     printf("%4s","");
+    for(int i=0;i<G->vexnum;i++)
+    printf("%4s",G->vertex[i]);
+    printf("\n");
     for(int i=0;i<G->vexnum;i++){
         printf("%4s",G->vertex[i]);
-    }
-    printf("\n");
-    for(int j=0;j<G->vexnum;j++){
-        printf("%4s",G->vertex[j]);
-        for(int k=0;k<G->vexnum;k++){
-            if(G->arcs[j][k]==INF) printf("%4s","-");
-            else printf("%4d",G->arcs[j][k]);
+        for(int j=0;j<G->vexnum;j++){
+            if(G->arcs[i][j]==INF)
+            printf("%4s","-");
+            else printf("%4d",G->arcs[i][j]);
         }
         printf("\n");
     }
 }
 
 void prim(ALGraph* G,int u0){
-    int lowcost[MAXV];      // 【数组1】每个顶点"到已进树区域"的最短候选边长
-    int adjvex[MAXV];       // 【数组2】那条候选边"是从树里哪个顶点拉过来的
-    int vistied[MAXV]={0};
+    int lowcost[MAXV];  //这两个数组的下标都代表顶点，所以lowcost是用来存该顶点到树的最小权值
+    int adjvex[MAXV];   //adjvex存的是那个最小权值是从树里的哪个顶点连到本顶点的顶点编号
+    int visited[MAXV]={0};
     int weight_sum=0;
     //初始化
     for(int i=0;i<G->vexnum;i++){
-        lowcost[i]=G->arcs[u0][i];
+        lowcost[i]=G->arcs[u0][i];//默认顶点i到u0为最小权值，下面的“更新”会找到真正的最小值
         adjvex[i]=u0;
     }
-    lowcost[u0]=0;
-    vistied[u0]=1;
-    //把未进树的（n-1）个顶点收入树中
-    for(int t=0;t<G->vexnum-1;t++){
+    visited[u0]=1;
+    //把剩余的n-1个顶点拉进树里面
+    for(int i=0;i<G->vexnum-1;i++){
         int min=INF;
         int k=-1;
-        //找最小权值
+        //选：找最小权值的边（没有任何改动，只是找出到树的最小权的顶点）
         for(int j=0;j<G->vexnum;j++){
-            if(!vistied[j]&&lowcost[j]<min){
+            if(!visited[j]&&lowcost[j]<min){
                 min=lowcost[j];
                 k=j;
             }
         }
-        //没找到
-        if(k==-1){
-            printf("图不连通\n");
-            return;
-        }
-        //k进树
+        weight_sum+=lowcost[k];
+        //k入树
         printf("边 %s - %s 权 %d\n",
             G->vertex[adjvex[k]],
             G->vertex[k],
             lowcost[k]);
-        weight_sum+=lowcost[k];
-        vistied[k]=1;
-        //更新：k 进树了，别人可能有了更便宜的接法
-        for(int j=0;j<G->vexnum;j++){
-            if(!vistied[j]&&G->arcs[k][j]<lowcost[j]){
-                lowcost[j]=G->arcs[k][j];
-                adjvex[j]=k;
+            visited[k]=1;
+        //更新：看看k入树后有没有其他更小权可替换
+        for(int t=0;t<G->vexnum;t++){
+            if(!visited[t]&&G->arcs[k][t]<lowcost[t]){
+                lowcost[t]=G->arcs[k][t];
+                adjvex[t]=k;
             }
         }
     }
-    printf("最小生成树总权值 = %d\n",weight_sum);
+    printf("最小树的总权：%d\n",weight_sum);
 }
 
 int main(void){
     ALGraph G;
-    build_ALGraph(&G);
-    printf("\n邻接矩阵：\n");
+    build_graph(&G);
     print_graph(&G);
-    printf("\n最小生成树（从 v0 开始）：\n");
+    printf("最小树从v0开始：\n");
     prim(&G,0);
-    printf("\n");
-    system("pause");
     return 0;
 }
