@@ -36,15 +36,15 @@ Node* hash_search(int n,int key){
 int hash_delete(int n,int key){
     int pos=key%n;
     if(!table[pos]) return 0;
-    Node** p=&table[pos];
-    while(*p){
-        if((*p)->key==key){
-            Node* del=*p;
-            *p=del->next;
+    Node** pp=&table[pos];
+    while(*pp){
+        if((*pp)->key==key){
+            Node* del=*pp;
+            *pp=del->next;
             free(del);
             return 1;
         }
-        p=&(*p)->next;
+        pp=&(*pp)->next;
     }
     return 0;
 }
@@ -63,6 +63,7 @@ void print_table(int n){
     }
     printf("\n");
 }
+
 int main(void){
     hash_insert(11,25);
     hash_insert(11,4);
@@ -86,5 +87,15 @@ int main(void){
     else printf("未找到%d\n",25);
     if(hash_delete(11,7)) printf("成功删除%d\n",7);
     else printf("未找到%d\n",7);
+    if(hash_delete(11,3)) printf("成功删除%d\n",3);
+    else printf("未找到%d\n",3);
+    if(hash_delete(11,12)) printf("成功删除%d\n",12);
+    else printf("未找到%d\n",12);
+    if(hash_delete(11,100)) printf("成功删除%d\n",100);
+    else printf("未找到%d\n",100);
+    if(hash_delete(11,26)) printf("成功删除%d\n",26);
+    else printf("未找到%d\n",26);
     print_table(11);
+
+    return 0;
 }
