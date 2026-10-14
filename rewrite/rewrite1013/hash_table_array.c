@@ -7,50 +7,45 @@ int table[SIZE];
 int seen[SIZE] = {0};
 
 bool insert(int val){
-    int pos = val % SIZE;
-    if(seen[pos] == 0){
-        table[pos] = val;
-        seen[0] = 1;
-        return true;
-    }
-
-    int emptypos = (pos + 1) % SIZE;
-    int count = 0;
-    while(count < SIZE - 1){
-        if(seen[emptypos] == 0){
-            table[emptypos] = val;
-            seen[emptypos] = 1;
-            return true;
+    int pos = (val % SIZE + SIZE) % SIZE;
+    int emptypos = -1;
+    for(int i = 0;i < SIZE; i++){
+        if(seen[pos] == 1 && table[pos] == val) return false;
+        if(seen[pos] == 0 || seen[pos] == 2){
+            emptypos = pos;
+            break;
         }
-        emptypos = (emptypos + 1) % SIZE;
-        count++;
+        pos = (pos + 1) % SIZE;
     }
-    return false;
+    if(emptypos == -1) return false;
+    table[emptypos] = val;
+    seen[emptypos] = 1;
+    return true;
 }
 
 bool delete_value(int val){
-    int pos = val % SIZE;
-    if(seen[pos] == 0) return false;
-    int count = 0;
-    while(count < SIZE - 1){
-       if(table[pos] == val){
-        seen[pos] = 0;
-        return true;
-       }
-       pos++;
-       count++;
+    int pos = (val % SIZE + SIZE) % SIZE;
+    for(int i = 0;i < SIZE; i++){
+        if(seen[pos] == 1){
+            if(table[pos] == val){
+                seen[pos] = 2;
+                return true;
+            }
+        }
+        pos = (pos + 1) % SIZE;
     }
     return false;
 }
 
 int search(int val){
-    int pos = val % SIZE;
-    if(seen[pos] == 0) return -1;
-    int count = 0;
-    while(count < SIZE - 1){
-        if(table[pos] == val) return pos;
-        pos++;
-        count++;
+    int pos = (val % SIZE + SIZE) % SIZE;
+    for(int i = 0;i < SIZE; i++){
+        if(seen[pos] == 1){
+            if(table[pos] == val){
+                return pos;
+            }
+        }
+        pos = (pos + 1) % SIZE;
     }
     return -1;
 }

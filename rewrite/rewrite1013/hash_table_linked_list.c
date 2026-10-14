@@ -15,7 +15,14 @@ void init_table(Node* table[]){
 }
 
 bool insert(int val){
-    int pos = val % SIZE;
+    int pos = (val % SIZE + SIZE) % SIZE;
+    if(table[pos] != NULL){
+        Node* p = table[pos];
+        while(p){
+            if(p->val == val) return false;
+            p = p->next;
+        }
+    }
     Node* new_node = (Node*)malloc(sizeof(Node));
     if(!new_node) return false;
     new_node->val = val;
@@ -25,9 +32,9 @@ bool insert(int val){
 }
 
 bool delete_node(int val){
-    int pos = val % SIZE;
+    int pos = (val % SIZE + SIZE) % SIZE;
     if(table[pos] == NULL) return false;
-    Node** p = table[pos];
+    Node** p = &table[pos];
     while(*p){
         if((*p)->val == val){
             Node* del = *p;
@@ -41,7 +48,7 @@ bool delete_node(int val){
 }
 
 Node* search(int val){
-    int pos = val % SIZE;
+    int pos = (val % SIZE + SIZE) % SIZE;
     if(table[pos] == NULL) return NULL;
     Node* p = table[pos];
     while(p){
