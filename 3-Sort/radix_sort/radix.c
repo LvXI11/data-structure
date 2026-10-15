@@ -16,7 +16,7 @@ void radix_sort(int* a, int n){
             cnt[d]++;
         }
         //计算前缀和（即确定每个桶中的元素放数组中的哪个区域（下标区域））
-        for(int i = 1;i < n; i++){
+        for(int i = 1;i < 10; i++){
             cnt[i] += cnt[i - 1];
         }
         //倒着装，确保原数组中的各元素之间的相对顺序不变
